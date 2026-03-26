@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>REVENANT — Discord Troll Legend</title>
+<meta name="description" content="Revenant — легенда токс батлов в Discord и Telegram. Toxic battles, XIVIVIDE, Сновидение батлы, Ватаке Discord.">
+<meta name="keywords" content="Revenant Discord, toxic battles XIVIVIDE, Сновидение батлы, Ватаке Discord, pevenant, trolling community">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Crimson+Pro:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+
+<style>
+  :root {
+    --red: #c0392b;
+    --red-bright: #e74c3c;
+    --red-dim: #7b241c;
+    --white: #f0ece4;
+    --grey: #888;
+    --bg: #080808;
+    --bg2: #0f0f0f;
+    --border: rgba(192,57,43,0.3);
+  }
+
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--white);
+    font-family: 'Crimson Pro', Georgia, serif;
+    overflow-x: hidden;
+    cursor: crosshair;
+  }
+
+  /* NOISE OVERLAY */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  /* SCANLINES */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,0.08) 2px,
+      rgba(0,0,0,0.08) 4px
+    );
+    pointer-events: none;
+    z-index: 998;
+  }
+
+  /* ───────── HERO ───────── */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 0 8vw;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-bg-number {
+    position: absolute;
+    right: -2vw;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(200px, 35vw, 500px);
+    color: rgba(192,57,43,0.04);
+    line-height: 1;
+    user-select: none;
+    animation: pulse-bg 4s ease-in-out infinite;
+  }
+
+  @keyframes pulse-bg {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
+  .hero-tag {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.2s forwards;
+  }
+
+  .hero-tag::before {
+    content: '> ';
+    color: var(--red-dim);
+  }
+
+  .hero-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 16vw, 220px);
+    line-height: 0.9;
+    letter-spacing: -2px;
+    position: relative;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.4s forwards;
+  }
+
+  .hero-name span {
+    display: block;
+    -webkit-text-stroke: 1px var(--red);
+    color: transparent;
+    animation: glitch 6s ease-in-out infinite;
+  }
+
+  @keyframes glitch {
+    0%, 90%, 100% { transform: translate(0,0); text-shadow: none; }
+    92% { transform: translate(-3px, 1px); text-shadow: 3px 0 var(--red-bright); }
+    94% { transform: translate(3px, -1px); text-shadow: -3px 0 var(--red-dim); }
+    96% { transform: translate(0,0); }
+    97% { transform: translate(2px, 2px); text-shadow: -2px 0 var(--red-bright); }
+  }
+
+  .hero-sub {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: clamp(12px, 1.5vw, 16px);
+    color: var(--grey);
+    margin-top: 32px;
+    max-width: 480px;
+    line-height: 1.8;
+    opacity: 0;
+    animation: fade-up 0.8s ease 0.6s forwards;
+  }
+
+  .hero-line {
+    width: 60px;
+    height: 1px;
+    background: var(--red);
+    margin-top: 40px;
+    opacity: 0;
+    animation: expand-line 1s ease 1s forwards;
+  }
+
+  @keyframes expand-line {
+    from { width: 0; opacity: 0; }
+    to { width: 60px; opacity: 1; }
+  }
+
+  @keyframes fade-up {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ───────── SCROLL INDICATOR ───────── */
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 8vw;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--red-dim);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    animation: blink 2s ease-in-out infinite;
+  }
+
+  .scroll-hint::after {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--red-dim);
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* ───────── SECTION WRAPPER ───────── */
+  section {
+    padding: clamp(60px, 10vh, 120px) 8vw;
+    position: relative;
+  }
+
+  .section-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+    max-width: 80px;
+  }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 6vw, 90px);
+    line-height: 1;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  /* ───────── ORIGIN STORY ───────── */
+  .origin {
+    background: var(--bg2);
+  }
+
+  .origin-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+  }
+
+  @media (max-width: 768px) {
+    .origin-grid { grid-template-columns: 1fr; gap: 40px; }
+  }
+
+  .origin-text {
+    font-size: clamp(16px, 1.5vw, 20px);
+    line-height: 1.9;
+    color: #bbb;
+    font-weight: 300;
+  }
+
+  .origin-text em {
+    color: var(--white);
+    font-style: italic;
+  }
+
+  .origin-text strong {
+    color: var(--red-bright);
+    font-style: normal;
+    font-weight: 400;
+  }
+
+  .year-marker {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(100px, 14vw, 160px);
+    color: rgba(192,57,43,0.08);
+    line-height: 1;
+    margin-bottom: -20px;
+    display: block;
+  }
+
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .timeline-item {
+    display: flex;
+    gap: 20px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  .timeline-item.visible {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .tl-year {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    color: var(--red);
+    min-width: 80px;
+    line-height: 1;
+    padding-top: 2px;
+  }
+
+  .tl-content h4 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    color: var(--white);
+  }
+
+  .tl-content p {
+    font-size: 15px;
+    color: var(--grey);
+    line-height: 1.7;
+  }
+
+  /* ───────── BATTLES ───────── */
+  .battles-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 2px;
+    margin-top: 40px;
+  }
+
+  .battle-card {
+    background: #111;
+    border: 1px solid var(--border);
+    padding: 28px 24px;
+    position: relative;
+    overflow: hidden;
+    cursor: default;
+    transition: border-color 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease, border-color 0.3s ease;
+  }
+
+  .battle-card.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .battle-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    transform-origin: left;
+  }
+
+  .battle-card:hover::before { transform: scaleX(1); }
+  .battle-card:hover { border-color: var(--red-dim); }
+
+  .battle-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    display: block;
+  }
+
+  .battle-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    color: var(--white);
+    margin-bottom: 6px;
+  }
+
+  .battle-desc {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    color: var(--grey);
+    line-height: 1.6;
+  }
+
+  /* ───────── TRIO ───────── */
+  .trio-section {
+    background: var(--bg2);
+  }
+
+  .trio-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 40px;
+  }
+
+  @media (max-width: 600px) {
+    .trio-grid { grid-template-columns: 1fr; }
+  }
+
+  .trio-card {
+    padding: 40px 32px;
+    background: #0a0a0a;
+    border: 1px solid var(--border);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+  }
+
+  .trio-card:hover { background: #111; }
+
+  .trio-card.leader {
+    border-color: var(--red);
+    background: #0d0a0a;
+  }
+
+  .trio-card.leader::after {
+    content: 'LEADER';
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: var(--red);
+    border: 1px solid var(--red-dim);
+    padding: 2px 8px;
+  }
+
+  .trio-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 80px;
+    color: rgba(192,57,43,0.1);
+    line-height: 1;
+    position: absolute;
+    bottom: -10px;
+    right: 10px;
+  }
+
+  .trio-username {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 36px;
+    letter-spacing: 2px;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+
+  .trio-handle {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    color: var(--red-dim);
+  }
+
+  /* ───────── IDENTITY ───────── */
+  .identity-block {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    margin-top: 40px;
+  }
+
+  .id-row {
+    display: flex;
+    align-items: center;
+    padding: 18px 24px;
+    background: #0d0d0d;
+    border-left: 2px solid transparent;
+    transition: border-color 0.3s ease, background 0.3s ease;
+    gap: 20px;
+  }
+
+  .id-row:hover {
+    border-left-color: var(--red);
+    background: #111;
+  }
+
+  .id-label {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--red-dim);
+    min-width: 100px;
+    text-transform: uppercase;
+  }
+
+  .id-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 2px;
+    color: var(--white);
+  }
+
+  .id-value a {
+    color: var(--white);
+    text-decoration: none;
+    transition: color 0.2s ease;
+  }
+
+  .id-value a:hover { color: var(--red-bright); }
+
+  /* ───────── LINKS ───────── */
+  .links-section { background: #050505; }
+
+  .links-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 16px;
+    margin-top: 40px;
+  }
+
+  .link-btn {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 24px 28px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--white);
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+    transition: color 0.3s ease;
+    cursor: pointer;
+  }
+
+  .link-btn::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--red);
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 0;
+  }
+
+  .link-btn:hover::before { transform: translateX(0); }
+  .link-btn:hover { color: var(--white); border-color: var(--red); }
+
+  .link-btn span, .link-icon { position: relative; z-index: 1; }
+
+  .link-icon { font-size: 20px; }
+
+  /* ───────── QUOTE ───────── */
+  .quote-section {
+    text-align: center;
+    padding: 80px 8vw;
+    position: relative;
+  }
+
+  .big-quote {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 5vw, 70px);
+    line-height: 1.1;
+    color: var(--white);
+    max-width: 900px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  .big-quote::before {
+    content: '"';
+    font-size: clamp(80px, 15vw, 200px);
+    color: rgba(192,57,43,0.1);
+    position: absolute;
+    top: -40px;
+    left: -20px;
+    line-height: 1;
+    font-family: Georgia, serif;
+  }
+
+  .quote-attr {
+    margin-top: 24px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--red-dim);
+    text-transform: uppercase;
+  }
+
+  /* ───────── FOOTER ───────── */
+  footer {
+    padding: 40px 8vw;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+
+  .footer-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--red-dim);
+  }
+
+  .footer-meta {
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 10px;
+    color: #333;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  /* ───────── RED CORNER MARKER ───────── */
+  .corner-mark {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    width: 8px;
+    height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    z-index: 1000;
+    animation: blink 1.5s ease-in-out infinite;
+  }
+
+  /* ───────── CURSOR TRAIL ───────── */
+  .cursor-dot {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transition: transform 0.1s ease;
+  }
+</style>
+</head>
+<body>
+
+<div class="corner-mark"></div>
+<div class="cursor-dot" id="cursor"></div>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg-number">R</div>
+  <p class="hero-tag">Discord / Telegram — Trolling Community</p>
+  <h1 class="hero-name">
+    <span>REVENANT</span>
+  </h1>
+  <p class="hero-sub">
+    pevenant · TEHEND · токс батлы · локальная легенда<br>
+    discord · telegram · tiktok · youtube
+  </p>
+  <div class="hero-line"></div>
+  <p class="scroll-hint">scroll</p>
+</section>
+
+<!-- ORIGIN -->
+<section class="origin">
+  <p class="section-label">001 — История</p>
+  <h2 class="section-title">НАЧАЛО</h2>
+
+  <div class="origin-grid">
+    <div>
+      <span class="year-marker">22</span>
+      <p class="origin-text">
+        Лето <strong>2022 года</strong>. Telegram-чат <em>«Всемирный чат общение»</em> — 
+        именно здесь появился первый клан <strong>Евросоюз</strong>, и именно здесь 
+        Revenant сделал свои первые шаги в мире троллинга.<br><br>
+        Он не был один. Вместе с <strong>Venzor (Akademir)</strong> и <strong>Prelex</strong> 
+        они образовали <em>топ-трио</em> того времени — костяк клана, который гремел 
+        на всё комьюнити. После лета трио распалось, клан закрылся — и Revenant 
+        начал строить карьеру тролля <em>в одиночку</em>.<br><br>
+        В <strong>2024–2025 годах</strong> он вошёл в ещё не оформившийся до конца 
+        <strong>Genocid Community</strong>, забрал несколько регов и фактически закрыл 
+        клан своим присутствием. Спустя время Genocid Community <em>распался сам по себе</em>. 
+        В <strong>осень 2025-го</strong> Revenant основал <strong>TEHEND</strong> — 
+        один из крупнейших нейтралитетных кланов в Discord. После него в комьюнити 
+        появился его последователь — <strong>Zetta</strong>, вышедший на батл 
+        <em>XIVIVIDE на 200к</em>.
+      </p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="tl-year">22</div>
+        <div class="tl-content">
+          <h4>Евросоюз</h4>
+          <p>Первый клан. Топ-трио в Telegram. Начало пути.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-year">24–25</div>
+        <div class="tl-content">
+          <h4>Genocid Community</h4>
+          <p>Возвращение на сцену. Revenant зашёл в только формирующийся клан — и разнёс его изнутри, забрав несколько регов. Genocid Community впоследствии распался сам по себе.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-year">Осень 25</div>
+        <div class="tl-content">
+          <h4>TEHEND</h4>
+          <p>Основание нейтралитетного клана в Discord. TEHEND появился уже после Genocid — как новая глава, новая структура.</p>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="tl-year">∞</div>
+        <div class="tl-content">
+          <h4>Наследие</h4>
+          <p>После Revenant остался последователь — <strong>Zetta</strong>, который вышел на батл XIVIVIDE на 200к. Легенда живёт дальше.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- BATTLES -->
+<section>
+  <p class="section-label">002 — Батлы</p>
+  <h2 class="section-title">АРЕНЫ</h2>
+  <p style="color: var(--grey); font-size: 17px; max-width: 560px; line-height: 1.8; margin-bottom: 8px;">
+    Revenant принимал участие в токс батлах и провокационных сходках на крупнейших 
+    локальных площадках. Видеозаписи некоторых моментов до сих пор живут в TikTok.
+  </p>
+
+  <div class="battles-grid">
+    <div class="battle-card">
+      <span class="battle-icon">💀</span>
+      <div class="battle-name">Сновидение</div>
+      <div class="battle-desc">Токс батлы Discord<br>локальная арена</div>
+    </div>
+    <div class="battle-card">
+      <span class="battle-icon">⚔️</span>
+      <div class="battle-name">Ватаке</div>
+      <div class="battle-desc">Discord батлы<br>провокации</div>
+    </div>
+    <div class="battle-card">
+      <span class="battle-icon">🔌</span>
+      <div class="battle-name">Plug</div>
+      <div class="battle-desc">PLUG батлы<br>площадка провокаций</div>
+    </div>
+    <div class="battle-card">
+      <span class="battle-icon">☠️</span>
+      <div class="battle-name">XIVIVIDE</div>
+      <div class="battle-desc">Toxic battles<br>крупная арена</div>
+    </div>
+    <div class="battle-card">
+      <span class="battle-icon">🎬</span>
+      <div class="battle-name">txhd_rec</div>
+      <div class="battle-desc">Канал с записями<br>t.me/txhd_rec</div>
+    </div>
+    <div class="battle-card">
+      <span class="battle-icon">➕</span>
+      <div class="battle-name">И другие</div>
+      <div class="battle-desc">Множество локальных<br>арен и серверов</div>
+    </div>
+  </div>
+</section>
+
+<!-- TRIO -->
+<section class="trio-section">
+  <p class="section-label">003 — Трио</p>
+  <h2 class="section-title">ЕВРОСОЮЗ</h2>
+  <p style="color: var(--grey); font-size: 17px; max-width: 540px; line-height: 1.8;">
+    Лето 2022. Топ-трио клана Евросоюз в Telegram — три имени, которые знало всё комьюнити.
+  </p>
+
+  <div class="trio-grid">
+    <div class="trio-card leader">
+      <div class="trio-username">REVENANT</div>
+      <div class="trio-handle">@pevenant</div>
+      <div class="trio-number">1</div>
+    </div>
+    <div class="trio-card">
+      <div class="trio-username">VENZOR</div>
+      <div class="trio-handle">aka Akademir</div>
+      <div class="trio-number">2</div>
+    </div>
+    <div class="trio-card">
+      <div class="trio-username">PRELEX</div>
+      <div class="trio-handle">— — —</div>
+      <div class="trio-number">3</div>
+    </div>
+  </div>
+</section>
+
+<!-- IDENTITY -->
+<section>
+  <p class="section-label">004 — Идентификация</p>
+  <h2 class="section-title">ПРОФИЛЬ</h2>
+
+  <div class="identity-block">
+    <div class="id-row">
+      <span class="id-label">Discord</span>
+      <span class="id-value">pevenant</span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">Telegram</span>
+      <span class="id-value"><a href="https://t.me/pevenant" target="_blank">@pevenant</a></span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">YouTube</span>
+      <span class="id-value">@pevenant (дискусатор)</span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">Клан</span>
+      <span class="id-value">TEHEND (Discord, осень 2025)</span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">Последователь</span>
+      <span class="id-value" style="color: var(--red-bright);">ZETTA — XIVIVIDE 200К</span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">Статус</span>
+      <span class="id-value" style="color: var(--red);">TOP 1 ПО ВЕРСИИ СОВРЕМЕННИКОВ</span>
+    </div>
+    <div class="id-row">
+      <span class="id-label">Записи</span>
+      <span class="id-value"><a href="https://t.me/txhd_rec" target="_blank">t.me/txhd_rec</a></span>
+    </div>
+  </div>
+</section>
+
+<!-- QUOTE -->
+<section class="quote-section">
+  <p class="big-quote">
+    Полной истории никто не знает —<br>но те, кто был рядом, говорят:<br>
+    <span style="color: var(--red);">ОН БЫЛ ТОП 1.</span>
+  </p>
+  <p class="quote-attr">— свидетели событий</p>
+</section>
+
+<!-- LINKS -->
+<section class="links-section">
+  <p class="section-label">005 — Ссылки</p>
+  <h2 class="section-title">НАЙТИ</h2>
+
+  <div class="links-grid">
+    <a class="link-btn" href="https://t.me/pevenant" target="_blank">
+      <span class="link-icon">✈</span>
+      <span>Telegram</span>
+    </a>
+    <a class="link-btn" href="https://t.me/txhd_rec" target="_blank">
+      <span class="link-icon">🎬</span>
+      <span>Записи батлов</span>
+    </a>
+    <a class="link-btn" href="https://youtube.com/@pevenant" target="_blank">
+      <span class="link-icon">▶</span>
+      <span>YouTube</span>
+    </a>
+    <a class="link-btn" href="#" onclick="return false;">
+      <span class="link-icon">💬</span>
+      <span>Discord: pevenant</span>
+    </a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-name">REVENANT</div>
+  <div class="footer-meta">TEHEND · ЕВРОСОЮЗ · Локальная легенда Discord &amp; Telegram</div>
+</footer>
+
+<script>
+  // Cursor dot
+  const cursor = document.getElementById('cursor');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX - 2 + 'px';
+    cursor.style.top = e.clientY - 2 + 'px';
+  });
+
+  // Intersection Observer for scroll animations
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.timeline-item, .battle-card').forEach((el, i) => {
+    el.style.transitionDelay = (i * 0.08) + 's';
+    observer.observe(el);
+  });
+
+  // Random glitch on section titles
+  document.querySelectorAll('.section-title').forEach(el => {
+    setInterval(() => {
+      if (Math.random() > 0.97) {
+        el.style.transform = `translateX(${Math.random() * 4 - 2}px)`;
+        setTimeout(() => el.style.transform = '', 80);
+      }
+    }, 500);
+  });
+</script>
+</body>
+</html>
